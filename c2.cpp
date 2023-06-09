@@ -1,107 +1,92 @@
-#include<iostream>
-using namespace std;
-class tree	{
-	int a[20][20],l,u,w,i,j,v,e,visited[20];
-public:
-	void input();
-	void display();
-	void minimum();
-};
-void tree::input()
+#include <iostream> 
+#include <vector> 
+#include <queue>
+using namespace std; 
+struct Edge 
 {
-	cout<<"Enter the no. of branches: ";
-	cin>>v;
+	int source; 
+	int destination; int cost; 
+ 	Edge(int src, int dest, int cst) 
+	{ 
+		source = src; destination =dest; cost = cst; 
+ 	} 
+}; 
+ 
+struct DisjointSet 
+{ 
+	vector<int> parent; 
+	vector<int> rank; 
+ 	DisjointSet(int n) 
+	{ 
+		parent.resize(n); 
+		rank.resize(n, 0); 
+ 		for (int i = 0; i < n; i++) 
+		{ 
+			parent[i] = i; 
+ 		} 
+ 	} 
+ 	int find(int x) 
+	{ 
+		if (parent[x] != x) 
+		{ 
+			parent[x] = find(parent[x]); 
+ 		} 
+ 		return parent[x]; 
+ 	} 
+ 	void unionSets(int x, int y) 
+	{ 
+		int xRoot = find(x); 
+		int yRoot = find(y); 
+ 		if (rank[xRoot] < rank[yRoot]) 
+ 		{ 
+ 			parent[xRoot] = yRoot; 
+ 		} 
+ 		else if (rank[xRoot] > rank[yRoot]) 
+ 		{ 
+			parent[yRoot] = xRoot; 
+ 		}
+ 		else 
+ 		{ 
+ 			parent[yRoot] = xRoot; 
+ 			rank[xRoot]++; 
+ 		} 
+	} 
+}; 
 
-	for(i=0;i<v;i++)
-	{
-		visited[i]=0;
-		for(j=0;j<v;j++)
-		{
-			a[i][j]=999;
-		}
+findMinimumCost(vector<Edge>& edges, int numCities) 
+{  
+	edges.end(), [](const Edge& a, const Edge& b)
+ 	{ 
+ 		return a.cost < b.cost; 
+ 	}; 
+ 	DisjointSet disjointSet(numCities); 
+	int minCost = 0; 
+ 	for (const Edge& edge : edges) 
+	{ 
+		int sourceRoot = disjointSet.find(edge.source); 
+		int destinationRoot = disjointSet.find(edge.destination);  
+		if (sourceRoot != destinationRoot) 
+		{ 
+			disjointSet.unionSets(sourceRoot, destinationRoot); 
+			minCost += edge.cost; 
+ 		} 
 	}
-	cout<<"\nEnter the no. of connections: ";
-	cin>>e;
-	for(i=0;i<e;i++)
-	{
-		cout<<"Enter the end branches of connections:  "<<endl;
-		cin>>l>>u;
-		cout<<"Enter the phone company charges for this connection:  ";
-		cin>>w;
-		a[l-1][u-1]=a[u-1][l-1]=w;
-	}
-}
-void tree::display()
-{
-	cout<<"\nAdjacency matrix:";
-	for(i=0;i<v;i++)
-	{
-		cout<<endl;
-		for(j=0;j<v;j++)
-		{
-			cout<<a[i][j]<<"   ";
-		}
-		cout<<endl;
-	}
-}
-void tree::minimum()
-{
-	int p=0,q=0,total=0,min;
-	visited[0]=1;
-	for(int count=0;count<(v-1);count++)
-	{
-		min=999;
-		for(i=0;i<v;i++)
-		{
-			if(visited[i]==1)
-			{
-				for(j=0;j<v;j++)
-				{
-					if(visited[j]!=1)
-					{
-						if(min > a[i][j])
-						{
-							min=a[i][j];
-							p=i;
-							q=j;
-						}
-					}
-				}
-			}
-		}
-		visited[p]=1;
-		visited[q]=1;
-		total=total+min;
-		cout<<"Minimum cost connection is"<<(p+1)<<" -> "<<(q+1)<<"  with charge : "<<min<< endl;
-	}
-	cout<<"The minimum total cost of connections of all branches is: "<<total<<endl;
-}
+	return minCost; 
+} 
 int main()
-{
-	int ch;
-	tree t;
-	do
-	{
-		cout<<"==========PRIM'S ALGORITHM================="<<endl;
-		cout<<"\n1.INPUT\n \n2.DISPLAY\n \n3.MINIMUM\n"<<endl;
-		cout<<"Enter your choice :"<<endl;
-		cin>>ch;
-
-	switch(ch)
-	{
-	case 1: cout<<"*******INPUT YOUR VALUES*******"<<endl;
-		t.input();
-		break;
-
-	case 2: cout<<"*******DISPLAY THE CONTENTS********"<<endl;
-		t.display();
-		break;
-
-	case 3: cout<<"*********MINIMUM************"<<endl;
-		t.minimum();
-		break;
-	}
-
-	}while(ch!=4);
-	return 0;
+{ 
+ 
+	int numCities = 5; 
+    vector<Edge> edges;
+	edges.push_back(Edge(0, 1, 2));
+	edges.push_back(Edge(0, 2, 3)); 
+	edges.push_back(Edge(1, 2, 1)); 
+	edges.push_back(Edge(1, 3, 4)); 
+	edges.push_back(Edge(2, 3, 2)); 
+	edges.push_back(Edge(2, 4, 3)); 
+	edges.push_back(Edge(3, 4, 1)); 
+ 
+	int minCost = findMinimumCost(edges, numCities); 
+	cout << "Minimum cost of leasing phone lines to connect all offices: " << minCost << endl; 
+	return 0; 
 }
